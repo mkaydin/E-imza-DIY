@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<invoice xmlns="http://example.com/invoice">
+    <header>
+        <number>INV-2024-001</number>
+        <date>2024-02-20</date>
+        <customer>Acme Corporation</customer>
+    </header>
+    <items>
+        <item>
+            <description>Software Development Services</description>
+            <quantity>100</quantity>
+            <unit>hours</unit>
+            <price>150.00</price>
+        </item>
+    </items>
+    <total>15000.00</total>
+    <currency>USD</currency>
+</invoice>

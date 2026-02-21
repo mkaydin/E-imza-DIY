@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<invoice xmlns="http://example.com/invoice">
+    <header>
+        <number>INV-2024-001</number>
+        <date>2024-02-20</date>
+        <customer>Acme Corporation</customer>
+    </header>
+    <items>
+        <item>
+            <description>Software Development Services</description>
+            <quantity>100</quantity>
+            <unit>hours</unit>
+            <price>150.00</price>
+        </item>
+    </items>
+    <total>15000.00</total>
+    <currency>USD</currency>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" /><SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" /><DigestValue>ll+3kpyoqmSrYlpA4rhQyvc0OYK6KEAOCQ7M3+ueOfM=</DigestValue></Reference></SignedInfo><SignatureValue>AVDLdcm64u2u7YwC9yybswC6ju1a4wt8GKEuktTxuK5TWX/Gz3CZdTSkiPfuopRDpSW+l2SNY6MAERysc0oCp+lUUEA+qj0H+CzKXcuRtGki46Bf2Li5wj1GOLTB1HJB+TeHq2m/XCsP69q6M4Sm57lXVeMFQI44bSRz5LPc2QfHL3VndBjlWqMqtGmpsRjLTCd6yCj1T3MQR3O4fg1ft87IJf8FHJ8+AfSbpnd/bgvnL7vI9YlfngH6/MkcjYOPgzlaDQTEpm/JAMSndyPThPm0HLX0Z7qzAQK+TYBPx6ulK+ChRJg66fORmryAa4jqg0wDCoV9y33/KJnFc1GH6Q==</SignatureValue><KeyInfo><X509Data><X509Certificate>MIICzjCCAbagAwIBAgIIXCihORsVq/kwDQYJKoZIhvcNAQELBQAwFDESMBAGA1UEAxMJWG1sU2lnbmVyMB4XDTI2MDIxOTExMTIzM1oXDTI3MDIyMDExMTIzM1owFDESMBAGA1UEAxMJWG1sU2lnbmVyMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvdFu4H5FVVl5Ez069Z6puDBbXuRbhafwg26ssxdkbwme0UD4wuqcU4OVQ2G+y6ZgRpVs0vN3fkmn8tSUrl/XmBb7DWyDS27lyRNE8u0jC0lIQ1maXAJ4v63RWf/lViICD3zfw7Wzq2HEfvJHoy4qEsD22AzipIYH6wKCUhHywP9bqQ0jo0qjZOBeriA+r/jjOWsLP0TdueURFML0v0QUe0q8vdKuuXqV4pJu989L9lN5qeldlWiT0D8PydF/kkpm65UddNmwG8b24dGPZxPkP49BPAypxbe+ZM+jhK4h0dbPvol8HNNHBVViReUfcMttFiuj4Iom8oWWrNzq05lh6wIDAQABoyQwIjALBgNVHQ8EBAMCBaAwEwYDVR0lBAwwCgYIKwYBBQUHAwMwDQYJKoZIhvcNAQELBQADggEBADiMGLAvXm8lD3hVFcix0S31byLxkehGyNkvt3Z8u6nU5Y0B4YkF+7gNtQ104/P06QRzxR/EPNalfgF0p0kLxIPWY6GVnqxbfeXEDmU8H5mL50+CtQsMP6ZI0aOeC2KG4l/qGmXORNpWxI2cVbN0DGrLfmojffSuK0pQwoojskH0G7GuZnYIlKEXmqAaU2U4DSfr8SHIT0635Ks0hittxqPaHRlka38nD6b25dqniy2dQ40ROBX6X+gkRDFaWQMiKpu4UbyR8iaYPO71vkDwcvr0eEmythzQsn9eo8/DWIHfF3VlMyzmEYLKsOieQ5rZ03if6fMz8vX33iYtLwNz3Sw=</X509Certificate></X509Data></KeyInfo></Signature></invoice>
