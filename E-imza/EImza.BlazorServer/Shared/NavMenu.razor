@@ -1,0 +1,31 @@
+@inject NavigationManager NavigationManager
+
+<MudList Clickable="true" T="string">
+    <MudListItem Icon="@Icons.Material.Filled.Home" Text="Home" href="/"
+                 Class="@GetClass("/")" />
+
+    <MudListItem Icon="@Icons.Material.Filled.TextFields" Text="Sign Text" href="/sign/text"
+                 Class="@GetClass("/sign/text")" />
+
+    <MudListItem Icon="@Icons.Material.Filled.Code" Text="Sign XML" href="/sign/xml"
+                 Class="@GetClass("/sign/xml")" />
+
+    <MudListItem Icon="@Icons.Material.Filled.PictureAsPdf" Text="Sign PDF" href="/sign/pdf"
+                 Class="@GetClass("/sign/pdf")" />
+
+    <MudDivider Class="my-2" />
+
+    <MudListItem Icon="@Icons.Material.Filled.Verified" Text="Verify Document" href="/verify"
+                 Class="@GetClass("/verify")" />
+</MudList>
+
+@code {
+    private string GetClass(string href)
+    {
+        var currentPath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        if (string.IsNullOrEmpty(currentPath))
+            currentPath = "/";
+
+        return currentPath.StartsWith(href) ? "mud-selected-item" : "";
+    }
+}

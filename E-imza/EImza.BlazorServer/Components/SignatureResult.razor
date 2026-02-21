@@ -1,0 +1,104 @@
+@using EImza.BlazorServer.Models
+@inject NavigationManager NavigationManager
+
+@if (Result != null && !string.IsNullOrEmpty(Result.ErrorMessage))
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">
+        <MudText Typo="Typo.body1">
+            <strong>Signing Failed</strong>
+        </MudText>
+        <MudText Typo="Typo.body2">@Result.ErrorMessage</MudText>
+    </MudAlert>
+}
+else if (Result != null && Result.SignedContent != null && Result.SignedContent.Length > 0)
+{
+    <MudAlert Severity="Severity.Success" Class="mb-4" Icon="@Icons.Material.Filled.CheckCircle">
+        <MudText Typo="Typo.body1">
+            <strong>Document Signed Successfully!</strong>
+        </MudText>
+        <MudText Typo="Typo.caption">
+            Signed at: @Result.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
+        </MudText>
+    </MudAlert>
+
+    <MudCard>
+        <MudCardHeader>
+            <MudText Typo="Typo.h6">Signature Details</MudText>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudText Typo="Typo.body2">
+                <strong>Original File:</strong> @Result.OriginalFileName<br />
+                <strong>Signed File:</strong> @Result.SignedFileName<br />
+                @if (Result.Hash != null)
+                {
+                    <strong>Hash Algorithm:</strong> @Result.HashAlgorithm<br />
+                    <strong>Hash:</strong> @GetHashPreview()<br />
+                }
+                <strong>Timestamp:</strong> @Result.Timestamp.ToString("yyyy-MM-dd HH:mm:ss UTC")
+            </MudText>
+
+            <MudStack Spacing="2" Class="mt-4">
+                <MudButton OnClick="DownloadSignedDocument" Variant="Variant.Filled" Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Download">
+                    Download Signed Document
+                </MudButton>
+
+                @if (!string.IsNullOrEmpty(Result.FileId))
+                {
+                    <MudButton OnClick="VerifyNow" Variant="Variant.Outlined" Color="Color.Info"
+                               StartIcon="@Icons.Material.Filled.Verified">
+                        Verify Now
+                    </MudButton>
+                }
+            </MudStack>
+        </MudCardContent>
+    </MudCard>
+}
+else if (IsSigning)
+{
+    <MudCard>
+        <MudCardContent Class="d-flex align-center justify-center" Style="min-height: 200px;">
+            <div class="text-center">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+                <MudText Typo="Typo.body1" Class="mt-4">
+                    Signing document...
+                </MudText>
+            </div>
+        </MudCardContent>
+    </MudCard>
+}
+
+@code {
+    [Parameter]
+    public SigningResult? Result { get; set; }
+
+    [Parameter]
+    public bool IsSigning { get; set; }
+
+    [Parameter]
+    public EventCallback OnDownload { get; set; }
+
+    [Parameter]
+    public EventCallback OnVerify { get; set; }
+
+    private string GetHashPreview()
+    {
+        if (Result?.Hash == null) return "";
+        var hashString = Convert.ToHexString(Result.Hash);
+        return hashString.Length > 32 ? hashString.Substring(0, 32) + "..." : hashString;
+    }
+
+    private void DownloadSignedDocument()
+    {
+        if (Result != null && !string.IsNullOrEmpty(Result.FileId))
+        {
+            NavigationManager.NavigateTo($"/api/download/{Result.FileId}", forceLoad: true);
+        }
+        OnDownload.InvokeAsync();
+    }
+
+    private void VerifyNow()
+    {
+        OnVerify.InvokeAsync();
+    }
+}

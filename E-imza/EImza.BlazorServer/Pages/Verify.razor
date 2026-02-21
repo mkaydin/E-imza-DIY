@@ -1,0 +1,117 @@
+@page "/verify"
+@using EImza.BlazorServer.Models
+@rendermode @(new InteractiveServerRenderMode())
+@using EImza.BlazorServer.Services
+@inject SigningOrchestratorService SigningService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Verify Document - E-İmza</PageTitle>
+
+<div class="d-flex align-center mb-4">
+    <MudButton OnClick="GoBack" Variant="Variant.Text"
+               Icon="@Icons.Material.Filled.ArrowBack" Class="mr-2">
+    </MudButton>
+    <MudText Typo="Typo.h5">Verify Document</MudText>
+</div>
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+    <MudPaper Class="pa-4 mb-4">
+        <MudText Typo="Typo.body1" Class="mb-4">
+            Upload a signed document (XML or PDF) to verify its signature.
+        </MudText>
+
+        <FileUploader Label="Select Signed Document" Accept=".xml,.pdf"
+                      OnFileSelectedCallback="OnFileSelected" MaxFileSize="52428800" />
+
+        @if (_fileContent != null)
+        {
+            <MudButton OnClick="VerifyDocument" Variant="Variant.Filled" Color="Color.Primary"
+                       Disabled="_isVerifying" Size="Size.Large" StartIcon="@Icons.Material.Filled.Verified"
+                       Class="mt-4 w-100">
+                @if (_isVerifying)
+                {
+                    <MudProgressCircular Size="Size.Small" Class="mr-2" />
+                    <span>Verifying...</span>
+                }
+                else
+                {
+                    <span>Verify Document</span>
+                }
+            </MudButton>
+        }
+    </MudPaper>
+
+    @if (_result != null)
+    {
+        <VerificationResultDisplay Result="_result" IsVerifying="_isVerifying" />
+    }
+
+    @if (_detectedType != DocumentType.Unknown && _detectedType != DocumentType.RawText)
+    {
+        <MudAlert Severity="Severity.Info" Class="mt-4">
+            Detected document type: <strong>@_detectedType</strong>
+        </MudAlert>
+    }
+</MudContainer>
+
+@code {
+    private byte[]? _fileContent;
+    private string _fileName = string.Empty;
+    private DocumentType _detectedType = DocumentType.Unknown;
+    private VerificationResult? _result;
+    private bool _isVerifying = false;
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    private async Task OnFileSelected(Microsoft.AspNetCore.Components.Forms.IBrowserFile file)
+    {
+        try
+        {
+            using var ms = new MemoryStream();
+            await file.OpenReadStream().CopyToAsync(ms);
+            _fileContent = ms.ToArray();
+            _fileName = file.Name;
+
+            // Detect document type
+            var request = new VerificationRequest
+            {
+                Content = _fileContent,
+                FileName = _fileName
+            };
+            _detectedType = await SigningService.DetectDocumentTypeAsync(request);
+            _result = null;
+        }
+        catch (Exception ex)
+        {
+            _fileContent = null;
+            _detectedType = DocumentType.Unknown;
+        }
+    }
+
+    private async Task VerifyDocument()
+    {
+        if (_fileContent == null || _detectedType == DocumentType.Unknown)
+            return;
+
+        _isVerifying = true;
+        _result = null;
+
+        try
+        {
+            var request = new VerificationRequest
+            {
+                Content = _fileContent,
+                FileName = _fileName
+            };
+
+            _result = await SigningService.VerifyAsync(request, _detectedType);
+        }
+        finally
+        {
+            _isVerifying = false;
+        }
+    }
+}

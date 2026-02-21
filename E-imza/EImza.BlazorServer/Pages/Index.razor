@@ -1,0 +1,98 @@
+@page "/"
+@inject NavigationManager NavigationManager
+@rendermode @(new InteractiveServerRenderMode())
+
+<PageTitle>E-İmza - Digital Signing Service</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    <MudText Typo="Typo.h3" Align="Align.Center" Class="mb-2">
+        E-İmza Digital Signing Service
+    </MudText>
+    <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Secondary" Class="mb-8">
+        Sign and verify documents with digital signatures
+    </MudText>
+
+    <MudGrid Spacing="4" Justify="Justify.Center">
+        <MudItem xs="12" sm="4">
+            <MudCard onclick="@(() => NavigationManager.NavigateTo("/sign/text"))"
+                      Style="cursor: pointer; transition: transform 0.2s; height: 100%;">
+                <MudCardHeader>
+                    <MudIcon Icon="@Icons.Material.Filled.TextFields" Size="Size.Large" Class="mb-2" />
+                    <MudText Typo="Typo.h6">Raw Text</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.body2">
+                        Sign plain text data with cryptographic signatures. Ideal for messages,
+                        JSON, or any text-based content.
+                    </MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward">
+                        Sign Text
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" sm="4">
+            <MudCard onclick="@(() => NavigationManager.NavigateTo("/sign/xml"))"
+                      Style="cursor: pointer; transition: transform 0.2s; height: 100%;">
+                <MudCardHeader>
+                    <MudIcon Icon="@Icons.Material.Filled.Code" Size="Size.Large" Class="mb-2" />
+                    <MudText Typo="Typo.h6">XML Document</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.body2">
+                        Sign XML documents using XMLDSIG standard. Perfect for SOAP messages,
+                        configuration files, and data interchange.
+                    </MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward">
+                        Sign XML
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" sm="4">
+            <MudCard onclick="@(() => NavigationManager.NavigateTo("/sign/pdf"))"
+                      Style="cursor: pointer; transition: transform 0.2s; height: 100%;">
+                <MudCardHeader>
+                    <MudIcon Icon="@Icons.Material.Filled.PictureAsPdf" Size="Size.Large" Class="mb-2" />
+                    <MudText Typo="Typo.h6">PDF Document</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudText Typo="Typo.body2">
+                        Sign PDF documents with digital signatures compatible with Adobe Reader
+                        and other PDF readers.
+                    </MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward">
+                        Sign PDF
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <MudDivider Class="my-8" />
+
+    <MudPaper Class="pa-4 d-flex align-center justify-center gap-4">
+        <MudText Typo="Typo.body1">
+            Already have a signed document?
+        </MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Info" StartIcon="@Icons.Material.Filled.Verified"
+                   OnClick="@(() => NavigationManager.NavigateTo("/verify"))">
+            Verify Document
+        </MudButton>
+    </MudPaper>
+</MudContainer>
+
+<style>
+    .mud-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+</style>

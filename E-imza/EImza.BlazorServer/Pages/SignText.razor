@@ -1,0 +1,99 @@
+@page "/sign/text"
+@using EImza.BlazorServer.Models
+@rendermode @(new InteractiveServerRenderMode())
+@using EImza.BlazorServer.Services
+@inject SigningOrchestratorService SigningService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Sign Raw Text - E-İmza</PageTitle>
+
+<div class="d-flex align-center mb-4">
+    <MudButton OnClick="GoBack" Variant="Variant.Text"
+               Icon="@Icons.Material.Filled.ArrowBack" Class="mr-2">
+    </MudButton>
+    <MudText Typo="Typo.h5">Sign Raw Text</MudText>
+</div>
+
+<MudGrid Spacing="4">
+    <MudItem xs="12" md="6">
+        <MudCard>
+            <MudCardHeader>
+                <MudText Typo="Typo.h6">Enter Text to Sign</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudTextField T="string" @bind-Value="_inputText" Multiline="true" Lines="15"
+                              Placeholder="Enter your text here..." Variant="Variant.Outlined"
+                              Immediate="true" />
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <CertificateUploader Certificate="_certificate" CertificateChanged="CertificateChanged" />
+
+        <MudButton OnClick="HandleSign" Variant="Variant.Filled" Color="Color.Primary"
+                   Disabled="string.IsNullOrEmpty(_inputText) || _isSigning" Size="Size.Large"
+                   StartIcon="@Icons.Material.Filled.Edit"
+                   Class="mt-4 w-100">
+            @if (_isSigning)
+            {
+                <MudProgressCircular Size="Size.Small" Class="mr-2" />
+                <span>Signing...</span>
+            }
+            else
+            {
+                <span>Sign Text</span>
+            }
+        </MudButton>
+    </MudItem>
+</MudGrid>
+
+@if (_result != null)
+{
+    <MudDivider Class="my-4" />
+    <SignatureResult Result="_result" IsSigning="_isSigning" />
+}
+
+@code {
+    private string _inputText = string.Empty;
+    private CertificateInfo? _certificate;
+    private SigningResult? _result;
+    private bool _isSigning = false;
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void CertificateChanged(CertificateInfo cert)
+    {
+        _certificate = cert;
+    }
+
+    private async Task HandleSign()
+    {
+        if (string.IsNullOrEmpty(_inputText))
+            return;
+
+        _isSigning = true;
+        _result = null;
+
+        try
+        {
+            var request = new SigningRequest
+            {
+                ContentType = ContentType.RawText,
+                Content = System.Text.Encoding.UTF8.GetBytes(_inputText),
+                FileName = "text.txt",
+                Certificate = _certificate
+            };
+
+            var progress = new Progress<int>(p => StateHasChanged());
+            _result = await SigningService.SignRawTextAsync(request, progress);
+        }
+        finally
+        {
+            _isSigning = false;
+        }
+    }
+}

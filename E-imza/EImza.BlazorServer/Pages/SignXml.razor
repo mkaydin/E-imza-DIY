@@ -1,0 +1,119 @@
+@page "/sign/xml"
+@using EImza.BlazorServer.Models
+@rendermode @(new InteractiveServerRenderMode())
+@using EImza.BlazorServer.Services
+@inject SigningOrchestratorService SigningService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Sign XML Document - E-İmza</PageTitle>
+
+<div class="d-flex align-center mb-4">
+    <MudButton OnClick="GoBack" Variant="Variant.Text"
+               Icon="@Icons.Material.Filled.ArrowBack" Class="mr-2">
+    </MudButton>
+    <MudText Typo="Typo.h5">Sign XML Document</MudText>
+</div>
+
+<MudGrid Spacing="4">
+    <MudItem xs="12" md="6">
+        <FileUploader Label="Select XML File" Accept=".xml" OnFileSelectedCallback="OnFileSelected"
+                      MaxFileSize="52428800" />
+
+        @if (_xmlContent != null)
+        {
+            <PreviewPanel DocumentType="DocumentType.Xml" TextContent="@_xmlContent" FileName="_fileName" />
+        }
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <CertificateUploader Certificate="_certificate" CertificateChanged="CertificateChanged" />
+
+        <MudButton OnClick="HandleSign" Variant="Variant.Filled" Color="Color.Primary"
+                   Disabled="_xmlContent == null || _isSigning" Size="Size.Large"
+                   StartIcon="@Icons.Material.Filled.Edit"
+                   Class="mt-4 w-100">
+            @if (_isSigning)
+            {
+                <MudProgressCircular Size="Size.Small" Class="mr-2" />
+                <span>Signing...</span>
+            }
+            else
+            {
+                <span>Sign XML Document</span>
+            }
+        </MudButton>
+    </MudItem>
+</MudGrid>
+
+@if (_result != null)
+{
+    <MudDivider Class="my-4" />
+    <SignatureResult Result="_result" IsSigning="_isSigning" />
+}
+
+@code {
+    private string? _xmlContent;
+    private string _fileName = string.Empty;
+    private CertificateInfo? _certificate;
+    private SigningResult? _result;
+    private bool _isSigning = false;
+    private int _progress = 0;
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+
+    private void CertificateChanged(CertificateInfo cert)
+    {
+        _certificate = cert;
+    }
+
+    private async Task OnFileSelected(Microsoft.AspNetCore.Components.Forms.IBrowserFile file)
+    {
+        try
+        {
+            using var reader = new StreamReader(file.OpenReadStream());
+            _xmlContent = await reader.ReadToEndAsync();
+            _fileName = file.Name;
+        }
+        catch (Exception ex)
+        {
+            _xmlContent = null;
+        }
+    }
+
+    private async Task HandleSign()
+    {
+        if (string.IsNullOrEmpty(_xmlContent))
+            return;
+
+        _isSigning = true;
+        _result = null;
+        _progress = 0;
+
+        try
+        {
+            var request = new SigningRequest
+            {
+                ContentType = ContentType.Xml,
+                Content = System.Text.Encoding.UTF8.GetBytes(_xmlContent),
+                FileName = _fileName,
+                Certificate = _certificate
+            };
+
+            var progress = new Progress<int>(p =>
+            {
+                _progress = p;
+                StateHasChanged();
+            });
+
+            _result = await SigningService.SignXmlAsync(request, progress);
+        }
+        finally
+        {
+            _isSigning = false;
+        }
+    }
+}

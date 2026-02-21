@@ -1,0 +1,107 @@
+@using EImza.BlazorServer.Models
+
+@if (!string.IsNullOrEmpty(TextContent))
+{
+    <MudCard>
+        <MudCardHeader>
+            <MudText Typo="Typo.h6">Preview</MudText>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudPaper Class="pa-4" Elevation="2" Style="max-height: 500px; overflow: auto;">
+                @if (DocumentType == DocumentType.Xml)
+                {
+                    <pre class="xml-preview"><code>@TextContent</code></pre>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" Style="white-space: pre-wrap; word-wrap: break-word;">@TextContent</MudText>
+                }
+            </MudPaper>
+            <MudText Typo="Typo.caption" Class="mt-2">
+                @TextContent.Length characters | @(TextContent.Length / 1024.0):F2 KB
+            </MudText>
+        </MudCardContent>
+    </MudCard>
+}
+else if (BinaryContent != null && BinaryContent.Length > 0)
+{
+    <MudCard>
+        <MudCardHeader>
+            <MudText Typo="Typo.h6">Preview</MudText>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudPaper Class="pa-4 d-flex align-center justify-center" Elevation="2"
+                       Style="min-height: 200px;">
+                @if (DocumentType == DocumentType.Pdf)
+                {
+                    <MudText Typo="Typo.body1" Class="text-center">
+                        <MudIcon Icon="@Icons.Material.Filled.PictureAsPdf" Size="Size.Large" Class="mb-2" />
+                        <br />
+                        PDF document loaded<br />
+                        @FileName
+                    </MudText>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body1" Class="text-center">
+                        <MudIcon Icon="@Icons.Material.Filled.InsertDriveFile" Size="Size.Large" Class="mb-2" />
+                        <br />
+                        Binary file loaded<br />
+                        @FileName
+                    </MudText>
+                }
+            </MudPaper>
+            <MudText Typo="Typo.caption" Class="mt-2">
+                @BinaryContent.Length bytes | @(BinaryContent.Length / 1024.0):F2 KB
+            </MudText>
+        </MudCardContent>
+    </MudCard>
+}
+else
+{
+    <MudCard>
+        <MudCardHeader>
+            <MudText Typo="Typo.h6">Preview</MudText>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudPaper Class="pa-4 d-flex align-center justify-center" Elevation="2"
+                       Style="min-height: 200px;">
+                <MudText Typo="Typo.body1" Color="Color.Secondary" Class="text-center">
+                    <MudIcon Icon="@Icons.Material.Filled.Info" Size="Size.Large" Class="mb-2" />
+                    <br />
+                    No document loaded for preview
+                </MudText>
+            </MudPaper>
+        </MudCardContent>
+    </MudCard>
+}
+
+<style>
+    .xml-preview {
+        margin: 0;
+        padding: 0;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #333;
+    }
+
+    .xml-preview code {
+        display: block;
+        white-space: pre;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public DocumentType DocumentType { get; set; } = DocumentType.Unknown;
+
+    [Parameter]
+    public string? TextContent { get; set; }
+
+    [Parameter]
+    public byte[]? BinaryContent { get; set; }
+
+    [Parameter]
+    public string FileName { get; set; } = string.Empty;
+}

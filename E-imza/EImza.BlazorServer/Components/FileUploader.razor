@@ -1,0 +1,90 @@
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+
+<MudCard>
+    <MudCardHeader>
+        <MudText Typo="Typo.h6">@Label</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        <InputFile OnChange="OnFileSelected" Accept="@Accept" class="mud-file-input" />
+
+        @if (_selectedFile != null)
+        {
+            <MudPaper Class="pa-4 mt-4" Elevation="2">
+                <MudText Typo="Typo.body2">
+                    <strong>File Name:</strong> @_selectedFile.Name<br />
+                    <strong>Size:</strong> @FormatFileSize(_selectedFile.Size)<br />
+                    <strong>Type:</strong> @_selectedFile.ContentType
+                </MudText>
+                <MudButton OnClick="ClearSelection" Variant="Variant.Text" Color="Color.Default"
+                           Size="Size.Small" Class="mt-2" StartIcon="@Icons.Material.Filled.Clear">
+                    Clear Selection
+                </MudButton>
+            </MudPaper>
+        }
+
+        @if (_errorMessage != null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-4">@_errorMessage</MudAlert>
+        }
+    </MudCardContent>
+</MudCard>
+
+@code {
+    private IBrowserFile? _selectedFile;
+    private string? _errorMessage;
+
+    [Parameter]
+    public string Accept { get; set; } = "*/*";
+
+    [Parameter]
+    public long MaxFileSize { get; set; } = 50 * 1024 * 1024; // 50MB
+
+    [Parameter]
+    public string Label { get; set; } = "Choose File";
+
+    [Parameter]
+    public EventCallback<IBrowserFile> OnFileSelectedCallback { get; set; }
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        _errorMessage = null;
+
+        if (e.FileCount == 0)
+        {
+            _selectedFile = null;
+            return;
+        }
+
+        var file = e.File;
+
+        if (file.Size > MaxFileSize)
+        {
+            _errorMessage = $"File too large. Maximum size is {MaxFileSize / (1024 * 1024)}MB.";
+            _selectedFile = null;
+            return;
+        }
+
+        _selectedFile = file;
+        await OnFileSelectedCallback.InvokeAsync(file);
+    }
+
+    private void ClearSelection()
+    {
+        _selectedFile = null;
+        _errorMessage = null;
+    }
+
+    private string FormatFileSize(long bytes)
+    {
+        string[] suffixes = { "B", "KB", "MB", "GB" };
+        int counter = 0;
+        double number = bytes;
+        while (Math.Round(number / 1024) >= 1)
+        {
+            number /= 1024;
+            counter++;
+        }
+        return $"{number:n1} {suffixes[counter]}";
+    }
+}

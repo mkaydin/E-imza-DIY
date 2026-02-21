@@ -1,0 +1,129 @@
+@page "/sign/pdf"
+@using EImza.BlazorServer.Models
+@rendermode @(new InteractiveServerRenderMode())
+@using EImza.BlazorServer.Services
+@inject SigningOrchestratorService SigningService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Sign PDF Document - E-İmza</PageTitle>
+
+<div class="d-flex align-center mb-4">
+    <MudButton OnClick="GoBack" Variant="Variant.Text"
+               Icon="@Icons.Material.Filled.ArrowBack" Class="mr-2">
+    </MudButton>
+    <MudText Typo="Typo.h5">Sign PDF Document</MudText>
+</div>
+
+<MudGrid Spacing="4">
+    <MudItem xs="12" md="6">
+        <FileUploader Label="Select PDF File" Accept=".pdf" OnFileSelectedCallback="OnFileSelected"
+                      MaxFileSize="52428800" />
+
+        @if (_pdfBytes != null)
+        {
+            <PreviewPanel DocumentType="DocumentType.Pdf" BinaryContent="_pdfBytes" FileName="_fileName" />
+        }
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <CertificateUploader Certificate="_certificate" CertificateChanged="CertificateChanged" />
+
+        @if (_isSigning && _progress > 0)
+        {
+            <MudPaper Class="pa-4 mt-4" Elevation="2">
+                <MudText Typo="Typo.body2" Class="mb-2">Signing PDF...</MudText>
+                <MudProgressLinear Color="Color.Primary" Value="@_progress" />
+                <MudText Typo="Typo.caption">@_progress%</MudText>
+            </MudPaper>
+        }
+
+        <MudButton OnClick="HandleSign" Variant="Variant.Filled" Color="Color.Primary"
+                   Disabled="_pdfBytes == null || _isSigning" Size="Size.Large"
+                   StartIcon="@Icons.Material.Filled.Edit"
+                   Class="mt-4 w-100">
+            @if (_isSigning)
+            {
+                <MudProgressCircular Size="Size.Small" Class="mr-2" />
+                <span>Signing...</span>
+            }
+            else
+            {
+                <span>Sign PDF Document</span>
+            }
+        </MudButton>
+    </MudItem>
+</MudGrid>
+
+@if (_result != null)
+{
+    <MudDivider Class="my-4" />
+    <SignatureResult Result="_result" IsSigning="_isSigning" />
+}
+
+@code {
+    private byte[]? _pdfBytes;
+    private string _fileName = string.Empty;
+    private CertificateInfo? _certificate;
+    private SigningResult? _result;
+    private bool _isSigning = false;
+    private int _progress = 0;
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+
+    private void CertificateChanged(CertificateInfo cert)
+    {
+        _certificate = cert;
+    }
+
+    private async Task OnFileSelected(Microsoft.AspNetCore.Components.Forms.IBrowserFile file)
+    {
+        try
+        {
+            using var ms = new MemoryStream();
+            await file.OpenReadStream().CopyToAsync(ms);
+            _pdfBytes = ms.ToArray();
+            _fileName = file.Name;
+        }
+        catch (Exception ex)
+        {
+            _pdfBytes = null;
+        }
+    }
+
+    private async Task HandleSign()
+    {
+        if (_pdfBytes == null)
+            return;
+
+        _isSigning = true;
+        _result = null;
+        _progress = 0;
+
+        try
+        {
+            var request = new SigningRequest
+            {
+                ContentType = ContentType.Pdf,
+                Content = _pdfBytes,
+                FileName = _fileName,
+                Certificate = _certificate
+            };
+
+            var progress = new Progress<int>(p =>
+            {
+                _progress = p;
+                StateHasChanged();
+            });
+
+            _result = await SigningService.SignPdfAsync(request, progress);
+        }
+        finally
+        {
+            _isSigning = false;
+        }
+    }
+}
