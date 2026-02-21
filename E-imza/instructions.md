@@ -8,5 +8,4 @@ dotnet test SigningService.Tests
 dotnet run --project SigningService
 
 # For clean up
-dotnet clean SigningService.sln
-dotnet clean SigningService.sln -c Releases
+dotnet clean SigningService.sln && dotnet clean SigningService.sln -c Releases
